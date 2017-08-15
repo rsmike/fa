@@ -716,7 +716,7 @@ class FA
     private $name;
     private $class;
     private $css;
-    private $options;
+    private $options = 0;
 
     private static $faClasses = [
         self::PULL_LEFT => 'fa-pull-left',
@@ -740,9 +740,9 @@ class FA
 
     public function __toString() {
         $classes = ['fa'];
-        $classes[] = $this->name;
+        $classes[] = 'fa-'.$this->name;
 
-        foreach (self::$faClasses as $flag=>$faClass) {
+        foreach (self::$faClasses as $flag => $faClass) {
             if ($this->options & $flag) {
                 $classes[] = $faClass;
             }
@@ -783,6 +783,6 @@ class FA
      * @return string
      */
     public static function __callStatic($name, $arguments) {
-        return (new self(str_replace('_','-',$name)))->set(...$arguments);
+        return new self(str_replace('_','-',$name), $arguments[0]??null);
     }
 }
