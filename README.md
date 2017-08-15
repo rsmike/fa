@@ -13,7 +13,7 @@ $ composer require rsmike/fa
 or add
 
 ```
-"rsmike/fa-php": "*"
+"rsmike/fa": "*"
 ```
 
 to the `require` section of your `composer.json` file.
