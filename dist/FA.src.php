@@ -64,7 +64,7 @@ class FA
 
     public function __toString() {
         $classes = ['fa'];
-        $classes[] = $this->name;
+        $classes[] = 'fa-'.$this->name;
 
         foreach (self::$faClasses as $flag=>$faClass) {
             if ($this->options & $flag) {
