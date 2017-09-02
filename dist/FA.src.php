@@ -1,12 +1,5 @@
 <?php
 
-/*
- * @TODO: stacking support
- * @TODO: list icons
- * @TODO: tests
- *
- * */
-
 namespace rsmike\fa;
 
 /*{METHODS_PHPDOC_PLACEHOLDER}*/
@@ -15,60 +8,64 @@ class FA
 {
     /* Initial setup */
     public static $iconAlias = [];
-    public static $defaultOptions = self::SPACE;
+    public static $defaultOptions = 0;
 
-    const SPACE         = 0b000000000000000000000001;
+    /* Modifiers */
+    const FA_PULL_LEFT = 1 << 1;
+    const FA_PULL_RIGHT = 1 << 2;
 
-    const PULL_LEFT     = 0b000000000000000000000010;
-    const PULL_RIGHT    = 0b000000000000000000000100;
-    const SIZE_LG       = 0b000000000000000000001000;
-    const SIZE_2X       = 0b000000000000000000010000;
-    const SIZE_3X       = 0b000000000000000000100000;
-    const SIZE_4X       = 0b000000000000000001000000;
-    const SIZE_5X       = 0b000000000000000010000000;
-    const FIX_WIDTH     = 0b000000000000000100000000;
-    const INVERSE       = 0b000000000000001000000000;
-    const BORDER        = 0b000000000000010000000000;
-    const SPIN          = 0b000000000000100000000000;
-    const PULSE         = 0b000000000001000000000000;
-    const ROT90         = 0b000000000010000000000000;
-    const ROT180        = 0b000000000100000000000000;
-    const ROT270        = 0b000000001000000000000000;
-    const FLIP_V        = 0b000000010000000000000000;
-    const FLIP_H        = 0b000000100000000000000000;
+    const FA_SIZE_LG = 1 << 3;
+    const FA_SIZE_2X = 1 << 4;
+    const FA_SIZE_3X = 1 << 5;
+    const FA_SIZE_4X = 1 << 6;
+    const FA_SIZE_5X = 1 << 7;
+    const FA_FIX_WIDTH = 1 << 8;
 
-    private $name;
-    private $class;
-    private $css;
+    const FA_INVERSE = 1 << 9;
+    const FA_BORDER = 1 << 10;
+
+    const FA_SPIN = 1 << 11;
+    const FA_PULSE = 1 << 12;
+
+    const FA_ROT90 = 1 << 13;
+    const FA_ROT180 = 1 << 14;
+    const FA_ROT270 = 1 << 15;
+
+    const FA_FLIP_V = 1 << 16;
+    const FA_FLIP_H = 1 << 17;
+
+    private $name, $class, $css, $wording;
     private $options = 0;
 
-    private static $faClasses = [
-        self::PULL_LEFT => 'fa-pull-left',
-        self::PULL_RIGHT => 'fa-pull-right',
-        self::SIZE_LG => 'fa-lg',
-        self::SIZE_2X => 'fa-2x',
-        self::SIZE_3X => 'fa-3x',
-        self::SIZE_4X => 'fa-4x',
-        self::SIZE_5X => 'fa-5x',
-        self::FIX_WIDTH => 'fa-fw',
-        self::INVERSE => 'fa-inverse',
-        self::BORDER => 'fa-border',
-        self::SPIN => 'fa-spin',
-        self::PULSE => 'fa-pulse',
-        self::ROT90 => 'fa-rotate-90',
-        self::ROT180 => 'fa-rotate-180',
-        self::ROT270 => 'fa-rotate-270',
-        self::FLIP_V => 'fa-flip-horizontal',
-        self::FLIP_H => 'fa-flip-vertical',
+    const FA_CLASSES = [
+        self::FA_PULL_LEFT => 'fa-pull-left',
+        self::FA_PULL_RIGHT => 'fa-pull-right',
+        self::FA_SIZE_LG => 'fa-lg',
+        self::FA_SIZE_2X => 'fa-2x',
+        self::FA_SIZE_3X => 'fa-3x',
+        self::FA_SIZE_4X => 'fa-4x',
+        self::FA_SIZE_5X => 'fa-5x',
+        self::FA_FIX_WIDTH => 'fa-fw',
+        self::FA_INVERSE => 'fa-inverse',
+        self::FA_BORDER => 'fa-border',
+        self::FA_SPIN => 'fa-spin',
+        self::FA_PULSE => 'fa-pulse',
+        self::FA_ROT90 => 'fa-rotate-90',
+        self::FA_ROT180 => 'fa-rotate-180',
+        self::FA_ROT270 => 'fa-rotate-270',
+        self::FA_FLIP_V => 'fa-flip-vertical',
+        self::FA_FLIP_H => 'fa-flip-horizontal',
     ];
 
     public function __toString() {
         $classes = ['fa'];
-        $classes[] = 'fa-'.$this->name;
+        $classes[] = 'fa-' . $this->name;
 
-        foreach (self::$faClasses as $flag => $faClass) {
-            if ($this->options & $flag) {
-                $classes[] = $faClass;
+        if ($this->options) {
+            foreach (self::FA_CLASSES as $flag => $faClass) {
+                if ($this->options & $flag) {
+                    $classes[] = $faClass;
+                }
             }
         }
 
@@ -76,24 +73,63 @@ class FA
             $classes[] = $this->class;
         }
 
-        return '<i class="'.join(' ',$classes).($this->css?'" style="'.$this->css:'').'"></i>'.($this->options & self::SPACE?' ':'');
+        return '<i class="' . join(' ',
+                $classes) . ($this->css ? '" style="' . $this->css : '') . '"></i>' . ($this->wording?' '.$this->wording:'');
     }
 
-    public function __construct($icon = '', $options = null) {
+    /**
+     * FA constructor.
+     * @param string $icon Icon name
+     * @param string $wording
+     * @param int $options
+     */
+    public function __construct($icon = '', $wording = null, $options = null) {
         $this->name = self::$iconAlias[$icon] ?? $icon;
+        $this->wording = $wording;
         $this->options = $options ?? self::$defaultOptions;
     }
 
-    public function set($options) {
+    /**
+     * Add modifiers for the icon
+     *
+     * Example:
+     * echo FA::check('ok')->mod(FA::FA_ROT90&FA::FA_SPIN);
+     * is equivalent to
+     * echo FA::check('ok', FA::FA_ROT90&FA::FA_SPIN);
+     *
+     * @param $options
+     * @return $this
+     */
+    public function mod($options) {
         $this->options = $options;
         return $this;
     }
 
-    public function css($css) {
+    /**
+     * Add custom style for the icon
+     *
+     * Example:
+     * echo FA::check('ok')->css('padding-right:20px');
+     * echo FA::check('ok', FA::FA_ROT90&FA::FA_SPIN)->css('padding-right:20px');
+     *
+     * @param $css
+     * @return $this
+     */
+    public function style($css) {
         $this->css = $css;
         return $this;
     }
 
+    /**
+     * Add custom class for the icon
+     *
+     * Example:
+     * echo FA::check('ok')->class('text-danger');
+     * echo FA::check('ok', FA::FA_ROT90&FA::FA_SPIN)->class('text-danger');
+     *
+     * @param $class
+     * @return $this
+     */
     public function class($class) {
         $this->class = $class;
         return $this;
@@ -102,11 +138,29 @@ class FA
     /**
      * Shortcut static constructor for Font Awesome icons
      *
-     * @param string $name function name is icon name
-     * @param array $arguments argument[0] for options
+     * Example:
+     * echo FA::check('ok');
+     * echo FA::check(FA::FA_ROT90&FA::FA_SPIN);
+     * echo FA::check('ok', FA::FA_ROT90&FA::FA_SPIN);
+     *
+     * @param string $name function name is fa icon name
+     * @param array $arguments
+     *  [0] string for wording OR int for options
+     *  [1] for options (only if wording is set)
      * @return string
      */
     public static function __callStatic($name, $arguments) {
-        return new self(str_replace('_','-',$name), $arguments[0]??null);
+        if (isset($arguments[0])) {
+            if (is_string($arguments[0])) {
+                $wording = $arguments[0];
+                $options = $arguments[1] ?? null;
+            } else {
+                $wording = null;
+                $options = $arguments[0];
+            }
+        } else {
+            $wording = $options = null;
+        }
+        return new self(str_replace('_', '-', $name), $wording, $options);
     }
 }

@@ -9,13 +9,16 @@
 const PLACEHOLDER = '/*{METHODS_PHPDOC_PLACEHOLDER}*/';
 const INFILE = 'FA.src.php';
 const OUTFILE = '../src/FA.php';
-const SIGNATURE = '* @method static {FA_ID}($options = null) Generates {FA_NAME} icon';
+const SIGNATURE = '* @method static {FA_ID}(string|int $text = null, int $options = null) Generates "{FA_NAME}" icon';
 
 $icons = yaml_parse_file('../vendor/fortawesome/font-awesome/src/icons.yml')['icons'];
+$config = yaml_parse_file('../vendor/fortawesome/font-awesome/_config.yml')['fontawesome'];
 
 echo 'Parsing Font Awesome icons file (' . count($icons) . ' icons)';
 
 $output = '/**' . PHP_EOL;
+$output .= '* Font Awesome icons version '.$config['version'].' ('.count($icons).' icons)'.PHP_EOL;
+$output .= '*'.PHP_EOL;
 foreach ($icons as $icon) {
     $iconName = str_replace('-', '_', $icon['id']);
     $output .= str_replace(['{FA_ID}', '{FA_NAME}'], [$iconName, $icon['name']], SIGNATURE) . PHP_EOL;
