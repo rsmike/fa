@@ -29,6 +29,10 @@ Includes autocomplete for most IDEs.
 
 *Class applies to the icon itself (not the wording)*
 
+#### Icon with Bootstrap-compatible tooltip
+`echo FA::exclamation_triangle()->tooltip('Data not verified');` generates `<i class="fa fa-exclamation-triangle" data-toggle="tooltip" title="Data not verified"></i>`
+
+
 #### Icon with additional CSS style
 `echo FA::check()->style('margin-left: 20px');` generates `<i class="fa fa-check" style="margin-left: 20px"></i>`
 

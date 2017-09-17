@@ -34,7 +34,7 @@ class FA
     const FA_FLIP_V = 1 << 16;
     const FA_FLIP_H = 1 << 17;
 
-    private $name, $class, $css, $wording;
+    private $name, $class, $css, $wording, $tooltip;
     private $options = 0;
 
     const FA_CLASSES = [
@@ -74,7 +74,7 @@ class FA
         }
 
         return '<i class="' . join(' ',
-                $classes) . ($this->css ? '" style="' . $this->css : '') . '"></i>' . ($this->wording?' '.$this->wording:'');
+                $classes) .'"'. ($this->css ? ' style="' . $this->css.'"' : ''). ($this->tooltip ? ' data-toggle="tooltip" title="' . $this->tooltip.'"' : '') . '></i>' . ($this->wording?' '.$this->wording:'');
     }
 
     /**
@@ -120,6 +120,19 @@ class FA
         return $this;
     }
 
+    /**
+     * Add bootstrap tooltip for the icon (data-toggle="tooltip" and title)
+     *
+     * Example:
+     * echo FA::check('ok')->tooltip('We are fine');
+     *
+     * @param $tooltip
+     * @return $this
+     */
+     public function tooltip($tooltip) {
+        $this->tooltip = $tooltip;
+        return $this;
+    }
     /**
      * Add custom class for the icon
      *
