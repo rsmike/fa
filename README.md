@@ -14,6 +14,21 @@ Includes autocomplete for most IDEs.
 
 *Note a space between icon and wording.*
 
+#### Icon with additional padding class
+`echo FA::check('Submit')->pad();` generates `<i class="fa fa-check fa-pad>Submit`
+
+*Instead of space between icon and wording, this adds a "fa-pad" padding class for the icon. This is especially useful inside links as the space character between icon and text shouldn't be underlined on hover. The class is non-standard and should be styled separately. Example:*
+
+```
+.fa.fa-pad:after {
+     content: " ";
+     display: inline-block;
+     width: 0.4em;
+}
+```
+
+*The `pad()` function is a shortcut to FA::FA_PAD option.*
+
 #### Icon with options 
 `echo FA::check(FA::FA_BORDER | FA_FLIP_H);`  generates `<i class="fa fa-check fa-border fa-flip-horizontal>`
 
@@ -67,8 +82,14 @@ to the `require` section of your `composer.json` file.
 "fortawesome/font-awesome" package is a dependency and will be installed automatically.
 
 ### Changelog
+##### v1.2
+* Custom padding class for use inside links instead of space symbol
+
+##### v1.1
+* Bootstrap tooltip functionality
+
 ##### v1.0
-* initial public version
+* Initial public version
 * FA icons 4.7 
 
 ### TODO

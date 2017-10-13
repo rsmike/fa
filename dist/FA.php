@@ -712,7 +712,9 @@ class FA
     const FA_FLIP_V = 1 << 16;
     const FA_FLIP_H = 1 << 17;
 
-    private $name, $class, $css, $wording, $tooltip;
+    const FA_PAD = 1 << 18;
+
+    private $name, $class, $css, $wording, $tooltip, $pad;
     private $options = 0;
 
     const FA_CLASSES = [
@@ -733,6 +735,7 @@ class FA
         self::FA_ROT270 => 'fa-rotate-270',
         self::FA_FLIP_V => 'fa-flip-vertical',
         self::FA_FLIP_H => 'fa-flip-horizontal',
+        self::FA_PAD => 'fa-pad', // Non standard class! Must be styled separately. 
     ];
 
     public function __toString() {
@@ -751,8 +754,19 @@ class FA
             $classes[] = $this->class;
         }
 
-        return '<i class="' . join(' ',
-                $classes) .'"'. ($this->css ? ' style="' . $this->css.'"' : ''). ($this->tooltip ? ' data-toggle="tooltip" title="' . $this->tooltip.'"' : '') . '></i>' . ($this->wording?' '.$this->wording:'');
+        if ($this->pad) {
+            $classes[] = self::FA_CLASSES[self::FA_PAD];
+        } else {
+            if ($this->wording) {
+                $this->wording = ' ' . $this->wording;
+            }
+        }
+
+        $this->classes = 'class="'.join(' ', $classes) .'"';
+        $this->css = $this->css ? ' style="' . $this->css.'"' : '';
+        $this->tooltip = $this->tooltip ? ' data-toggle="tooltip" title="' . $this->tooltip.'"' : '';
+
+        return '<i ' . $this->classes . $this->css. $this->tooltip . '></i>' . $this->wording;
     }
 
     /**
@@ -808,7 +822,7 @@ class FA
      * @return $this
      */
      public function tooltip($tooltip) {
-        $this->tooltip = $tooltip;
+        $this->tooltip = htmlspecialchars($tooltip);
         return $this;
     }
     /**
@@ -823,6 +837,28 @@ class FA
      */
     public function class($class) {
         $this->class = $class;
+        return $this;
+    }
+
+    /**
+     * Turns on "Link title mode". When this is activated, a (nonstandard!) "fa-a" padding class is added instead of a simple space between icon and wording. 
+     * This should avoid underline hover effect on leading space for link titles.
+     * 
+     * !!! Must be styled separately, e.g.
+     * .fa.fa-pad:after {
+     *   content: " ";
+     *   display: inline-block;
+     *   width: 0.4em;
+     * }
+     *
+     * Example:
+     * echo '<a href = "#">'.FA::check('ok')->pad().'</a>';
+     *
+     * @param $linkMode
+     * @return $this
+     */
+    public function pad($pad = true) {
+        $this->pad = $pad;
         return $this;
     }
 

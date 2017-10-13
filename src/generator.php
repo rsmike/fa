@@ -8,7 +8,7 @@
 
 const PLACEHOLDER = '/*{METHODS_PHPDOC_PLACEHOLDER}*/';
 const INFILE = __DIR__.'/FA.src.php';
-const OUTFILE = __DIR__.'/../src/FA.php';
+const OUTFILE = __DIR__.'/../dist/FA.php';
 const SIGNATURE = '* @method static static {FA_ID}(string|int $text = null, int $options = null) Generates "{FA_NAME}" icon';
 
 $icons = yaml_parse_file(__DIR__.'/../vendor/fortawesome/font-awesome/src/icons.yml')['icons'];
