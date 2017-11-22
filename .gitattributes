@@ -1,4 +1,5 @@
 /src export-ignore
+/tests export-ignore
 /README.md export-ignore
 /LICENSE.md export-ignore
 .gitattributes export-ignore

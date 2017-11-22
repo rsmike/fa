@@ -712,10 +712,12 @@ class FA
     const FA_FLIP_V = 1 << 16;
     const FA_FLIP_H = 1 << 17;
 
-    const FA_PAD = 1 << 18;
+    private $attrs = [];
 
-    private $name, $class, $css, $wording, $tooltip, $pad;
+    private $wording = '';
     private $options = 0;
+
+    const PAD_CLASS = 'fa-pad';
 
     const FA_CLASSES = [
         self::FA_PULL_LEFT => 'fa-pull-left',
@@ -735,38 +737,23 @@ class FA
         self::FA_ROT270 => 'fa-rotate-270',
         self::FA_FLIP_V => 'fa-flip-vertical',
         self::FA_FLIP_H => 'fa-flip-horizontal',
-        self::FA_PAD => 'fa-pad', // Non standard class! Must be styled separately. 
     ];
 
     public function __toString() {
-        $classes = ['fa'];
-        $classes[] = 'fa-' . $this->name;
-
         if ($this->options) {
             foreach (self::FA_CLASSES as $flag => $faClass) {
                 if ($this->options & $flag) {
-                    $classes[] = $faClass;
+                    $this->attrs['class'][] = $faClass;
                 }
             }
         }
 
-        if ($this->class) {
-            $classes[] = $this->class;
+        $tag = ['i'];
+        foreach ($this->attrs as $key => $attr) {
+            $tag[] = $key . '="' . join(' ', (array)$attr) . '"';
         }
 
-        if ($this->pad) {
-            $classes[] = self::FA_CLASSES[self::FA_PAD];
-        } else {
-            if ($this->wording) {
-                $this->wording = ' ' . $this->wording;
-            }
-        }
-
-        $this->classes = 'class="'.join(' ', $classes) .'"';
-        $this->css = $this->css ? ' style="' . $this->css.'"' : '';
-        $this->tooltip = $this->tooltip ? ' data-toggle="tooltip" title="' . $this->tooltip.'"' : '';
-
-        return '<i ' . $this->classes . $this->css. $this->tooltip . '></i>' . $this->wording;
+        return '<' . join(' ', $tag) . '></i>' . $this->wording;
     }
 
     /**
@@ -776,13 +763,28 @@ class FA
      * @param int $options
      */
     public function __construct($icon = '', $wording = null, $options = null) {
-        $this->name = self::$iconAlias[$icon] ?? $icon;
-        $this->wording = $wording;
+        $this->attrs['class'] = ['fa', 'fa-' . (self::$iconAlias[$icon] ?? $icon)];
+        $this->wording = ' ' . $wording;
         $this->options = $options ?? self::$defaultOptions;
     }
 
     /**
-     * Add modifiers for the icon
+     * Add HTML attributes for the icon
+     *
+     * Example:
+     * echo FA::check('ok')->attr(['class'=>'text-success', 'data-container'=>'body']);
+     * will produce <i class="fa fa-ok" class="text-success" data-container="body">
+     *
+     * @param $attributes array
+     * @return static
+     */
+    public function att($attributes = []) {
+        $this->attrs = array_merge_recursive($this->attrs, $attributes);
+        return $this;
+    }
+
+    /**
+     * Set modifiers for the icon
      *
      * Example:
      * echo FA::check('ok')->mod(FA::FA_ROT90&FA::FA_SPIN);
@@ -790,11 +792,20 @@ class FA
      * echo FA::check('ok', FA::FA_ROT90&FA::FA_SPIN);
      *
      * @param $options
-     * @return $this
+     * @return static
      */
     public function mod($options) {
         $this->options = $options;
         return $this;
+    }
+
+    /**
+     * @deprecated
+     * @param $css
+     * @return static
+     */
+    public function style($css) {
+        return $this->css($css);
     }
 
     /**
@@ -804,12 +815,15 @@ class FA
      * echo FA::check('ok')->css('padding-right:20px');
      * echo FA::check('ok', FA::FA_ROT90&FA::FA_SPIN)->css('padding-right:20px');
      *
-     * @param $css
-     * @return $this
+     * @param $css string
+     * @return static
      */
-    public function style($css) {
-        $this->css = $css;
-        return $this;
+    public function css($css) {
+        $css = trim($css);
+        if (substr($css, -1) !== ';') {
+            $css = $css . ';';
+        }
+        return $this->att(['style' => $css]);
     }
 
     /**
@@ -818,13 +832,21 @@ class FA
      * Example:
      * echo FA::check('ok')->tooltip('We are fine');
      *
-     * @param $tooltip
-     * @return $this
+     * @param $tooltip string
+     * @param null|string $placement left, top, bottom, right. Defaults to top
+     * @param bool $container whether to add 'data-container=body' to the tooltip
+     * @return static
      */
-     public function tooltip($tooltip) {
-        $this->tooltip = htmlspecialchars($tooltip);
-        return $this;
+    public function tooltip($tooltip, $placement = null, $container = false) {
+        if ($placement) {
+            $this->att(['data-placement' => $placement]);
+        }
+        if ($container) {
+            $this->att(['data-container' => 'body']);
+        }
+        return $this->att(['data-toggle' => 'tooltip', 'title' => htmlspecialchars($tooltip)]);
     }
+
     /**
      * Add custom class for the icon
      *
@@ -832,18 +854,17 @@ class FA
      * echo FA::check('ok')->class('text-danger');
      * echo FA::check('ok', FA::FA_ROT90&FA::FA_SPIN)->class('text-danger');
      *
-     * @param $class
-     * @return $this
+     * @param $class string | array
+     * @return static
      */
     public function class($class) {
-        $this->class = $class;
-        return $this;
+        return $this->att(['class' => $class]);
     }
 
     /**
-     * Turns on "Link title mode". When this is activated, a (nonstandard!) "fa-a" padding class is added instead of a simple space between icon and wording. 
+     * Turns on "Link title mode". When this is activated, a (nonstandard!) "fa-a" padding class is added instead of a simple space between icon and wording.
      * This should avoid underline hover effect on leading space for link titles.
-     * 
+     *
      * !!! Must be styled separately, e.g.
      * .fa.fa-pad:after {
      *   content: " ";
@@ -854,12 +875,11 @@ class FA
      * Example:
      * echo '<a href = "#">'.FA::check('ok')->pad().'</a>';
      *
-     * @param $linkMode
-     * @return $this
+     * @return static
      */
-    public function pad($pad = true) {
-        $this->pad = $pad;
-        return $this;
+    public function pad() {
+        $this->wording = ltrim($this->wording);
+        return $this->att(['class' => self::PAD_CLASS]);
     }
 
     /**
@@ -874,7 +894,7 @@ class FA
      * @param array $arguments
      *  [0] string for wording OR int for options
      *  [1] for options (only if wording is set)
-     * @return string
+     * @return static
      */
     public static function __callStatic($name, $arguments) {
         if (isset($arguments[0])) {
