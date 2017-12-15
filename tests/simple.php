@@ -5,6 +5,12 @@ include_once('../dist/FA.php');
 
 echo FA::ok();
 echo PHP_EOL;
+echo FA::ok(FA::FA_BORDER | FA::FA_FLIP_H);
+echo PHP_EOL;
+echo FA::ok('hey',FA::FA_BORDER | FA::FA_FLIP_H);
+echo PHP_EOL;
+echo FA::ok('hey',FA::FA_BORDER | FA::FA_FLIP_H)->mod(FA::FA_PULSE);
+echo PHP_EOL;
 echo FA::ok('test');
 echo PHP_EOL;
 echo FA::ok('test')->pad();

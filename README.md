@@ -32,7 +32,7 @@ Includes PHPDoc autocomplete supported by most IDEs.
 *The `pad()` function can be replaced by FA::FA_PAD option.*
 
 #### Icon with options 
-`echo FA::check(FA::FA_BORDER | FA_FLIP_H);`  generates `<i class="fa fa-check fa-border fa-flip-horizontal>`
+`echo FA::check(FA::FA_BORDER | FA::FA_FLIP_H);`  generates `<i class="fa fa-check fa-border fa-flip-horizontal>`
 
 >Possible options are: `FA_PULL_LEFT`, `FA_PULL_RIGHT`, `FA_SIZE_LG`, `FA_SIZE_2X`, `FA_SIZE_3X`, `FA_SIZE_4X`, `FA_SIZE_5X`, `FA_FIX_WIDTH`, `FA_INVERSE`, `FA_BORDER`, `FA_SPIN`, `FA_PULSE`, `FA_ROT90`, `FA_ROT180`, `FA_ROT270`, `FA_FLIP_V`, `FA_FLIP_H`;
 
@@ -84,7 +84,7 @@ to the `require` section of your `composer.json` file.
 
 ### Changelog
 ##### v1.4
-* Accessing any additional attribute via "att" method
+* Setting any additional attribute via "att" method
 * Custom tooltip position and container
 * `style()` renamed to `css()`
 

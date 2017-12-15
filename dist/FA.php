@@ -764,7 +764,7 @@ class FA
      */
     public function __construct($icon = '', $wording = null, $options = null) {
         $this->attrs['class'] = ['fa', 'fa-' . (self::$iconAlias[$icon] ?? $icon)];
-        $this->wording = ' ' . $wording;
+        $this->wording = $wording ? (' ' . $wording) : '';
         $this->options = $options ?? self::$defaultOptions;
     }
 
